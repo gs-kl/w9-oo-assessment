@@ -1,3 +1,6 @@
+Paired with Kris (krisziel)
+
+
 # gSchool Ruby assessment
 
 You work for a book company that publishes poems.  You just inherited a treasure trove of poems in the public domain.

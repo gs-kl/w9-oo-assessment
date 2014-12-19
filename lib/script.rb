@@ -1,30 +1,52 @@
-@data_hash = Hash.new
-poem_files = Dir.glob('data/*.txt')
-
-poem_files.each do |poem_file|
-  all_lines = IO.readlines(poem_file)
-  @verse_count = 0
-  @line_count = 0
-  all_lines.each_with_index do |line, index|
-    if index == 0
-      @title = line.chomp
-    elsif index == 1
-      @author = line.chomp
-      if not @data_hash.has_key?(@author)
-        @data_hash[@author] = Hash.new
-      end
-    else
-      if line =~ /^.+$/
-        @line_count += 1
-      elsif line == "\n"
-        @verse_count += 1
-      end
+class AllPoems
+  attr_reader :poems
+  def initialize directory='data/*.txt'
+    @files = Dir.glob(directory)
+    @poems = []
+    @files.each do |file|
+      @poems << Poem.new(file)
     end
   end
-  @data_hash[@author][@title] = {
-    verses: @verse_count,
-    lines: @line_count,
-  }
+
+  def print
+    output_hash = Hash.new
+    @poems.each do |poem|
+      if !output_hash[poem.author]
+        output_hash[poem.author] = Hash.new
+      end
+      output_hash[poem.author][poem.title] = {
+        verses: poem.verses, 
+        lines: poem.lines,
+      }
+    end
+    p output_hash
+  end
 end
 
-p @data_hash
+
+class Poem
+  attr_reader :poem_body
+  def initialize file
+    @file_lines = IO.readlines(file)
+    @poem_body = @file_lines[2..-1]
+  end
+
+  def title
+    @file_lines[0].chomp
+  end
+
+  def author
+    @file_lines[1].chomp
+  end
+
+  def verses
+    @poem_body.select{|a| a == "\n"}.count
+  end
+
+  def lines
+    @poem_body.select{|a| a =~ /^.+$/}.count
+  end
+end
+
+
+AllPoems.new.print
